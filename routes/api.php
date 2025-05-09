@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CategoryController;
 
@@ -10,6 +11,13 @@ Route::get('/category/{slug}', [CategoryController::class, 'show']);
 Route::post('/category', [CategoryController::class, 'store']);
 Route::post('/category/{id}', [CategoryController::class, 'update']);
 Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
+
+//product
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/product/{slug}', [ProductController::class, 'show']);
+Route::post('/product', [ProductController::class, 'store']);
+Route::post('/product/{id}', [ProductController::class, 'update']);
+Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 
 //auth
 Route::post('/login', [AuthController::class, 'login']);
@@ -22,5 +30,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-user', [AuthController::class, 'updateUser']);
     Route::post('/create-address', [AuthController::class, 'createAddress']);
     Route::post('/update-address/{id}', [AuthController::class, 'updateAddress']);
-
 });
