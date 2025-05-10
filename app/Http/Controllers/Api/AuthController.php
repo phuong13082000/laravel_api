@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AddressDetail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -151,8 +150,7 @@ class AuthController extends Controller
             'mobile' => 'string',
         ]);
 
-        AddressDetail::create([
-            'user_id' => $user->id,
+        $user->address()->create([
             'address_line' => $request['address_line'],
             'city' => $request['city'],
             'state' => $request['state'],
@@ -177,16 +175,13 @@ class AuthController extends Controller
             'mobile' => 'string',
         ]);
 
-        $address = AddressDetail::where('user_id', $user->id)
-            ->where('id', $id)
-            ->first();
+        $address = $user->address()->where('id', $id)->first();
 
         if (!$address) {
             return $this->responseError('Address not found');
         }
 
         $address->update([
-            'user_id' => $user->id,
             'address_line' => $request['address_line'],
             'city' => $request['city'],
             'state' => $request['state'],

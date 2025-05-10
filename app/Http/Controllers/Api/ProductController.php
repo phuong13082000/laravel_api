@@ -15,17 +15,9 @@ class ProductController extends Controller
         $products = Product::with('category')->get();
 
         foreach ($products as $product) {
-            if (!empty($product->image)) {
-                $product->image = asset('storage/' . $product->image);
-            }
-
             $product->makeHidden('created_at', 'updated_at', 'category_id');
 
             if (!empty($product->category)) {
-                if (!empty($product->category->image)) {
-                    $product->category->image = asset('storage/' . $product->category->image);
-                }
-
                 $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
             }
         }
@@ -72,10 +64,6 @@ class ProductController extends Controller
         }
 
         if (!empty($product->category)) {
-            if (!empty($product->category->image)) {
-                $product->category->image = asset('storage/' . $product->category->image);
-            }
-
             $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
         }
 

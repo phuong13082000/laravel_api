@@ -9,10 +9,6 @@ if (!function_exists('buildTreeCategory')) {
             if ($category->parent_id == $parentId) {
                 $category->makeHidden('created_at', 'updated_at', 'parent_id');
 
-                if (!empty($category->image)) {
-                    $category->image = asset('storage/' . $category->image);
-                }
-
                 $children = buildTreeCategory($categories, $category->id);
 
                 if ($children) {

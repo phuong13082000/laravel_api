@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CategoryController;
@@ -24,10 +25,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/update-user', [AuthController::class, 'updateUser']);
     Route::post('/create-address', [AuthController::class, 'createAddress']);
     Route::post('/update-address/{id}', [AuthController::class, 'updateAddress']);
+
+    Route::get('/get-cart-item', [CartController::class, 'getCartItem']);
+    Route::post('/add-cart-item/{id}', [CartController::class, 'addCartItem']);;
+    Route::post('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
+    Route::delete('/delete-cart-item/{id}', [CartController::class, 'removeCartItem']);
+
 });

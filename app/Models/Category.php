@@ -28,6 +28,11 @@ class Category extends Model
         });
     }
 
+    public function getImageAttribute($value)
+    {
+        return $value ? asset('storage/' . $value) : null;
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
@@ -38,8 +43,4 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-//    public function products(): HasMany
-//    {
-//        return $this->hasMany(Product::class);
-//    }
 }
