@@ -15,7 +15,7 @@ class CategoryController extends Controller
         $categories = Category::all();
         $tree = buildTreeCategory($categories);
 
-        return $this->responseSuccess(data: $tree);
+        return $this->responseSuccess($tree);
     }
 
     public function store(Request $request)
@@ -40,7 +40,7 @@ class CategoryController extends Controller
             $category->save();
         }
 
-        return $this->responseSuccess(data: []);
+        return $this->responseSuccess([]);
     }
 
     public function show($slug)
@@ -53,24 +53,19 @@ class CategoryController extends Controller
 
         foreach ($category->children as $child) {
             $child->makeHidden('created_at', 'updated_at', 'parent_id');
-
-            if (!empty($child->image)) {
-                $child->image = media_url($child->image);
-            }
         }
 
-        return $this->responseSuccess(
-            data: [
-                'id' => $category->id,
-                'title' => $category->title,
-                'slug' => $category->slug,
-                'icon' => $category->icon,
-                'color' => $category->color,
-                'description' => $category->description,
-                'image' => $category->image = media_url($category->image),
-                'depth' => $category->depth,
-                'children' => $category->children,
-            ]);
+        return $this->responseSuccess([
+            'id' => $category->id,
+            'title' => $category->title,
+            'slug' => $category->slug,
+            'icon' => $category->icon,
+            'color' => $category->color,
+            'description' => $category->description,
+            'image' => $category->image = media_url($category->image),
+            'depth' => $category->depth,
+            'children' => $category->children,
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -95,8 +90,8 @@ class CategoryController extends Controller
             'parent_id' => $request['parent_id'] ?? $category->parent_id,
         ]);
 
-        if($request->hasFile('image')) {
-            if(media_exists($category->image)) {
+        if ($request->hasFile('image')) {
+            if (media_exists($category->image)) {
                 Storage::disk('public')->delete($category->image);
             }
 
@@ -120,7 +115,7 @@ class CategoryController extends Controller
             return $this->responseError('Cannot delete category with children');
         }
 
-        if(media_exists($category->image)) {
+        if (media_exists($category->image)) {
             Storage::disk('public')->delete($category->image);
         }
 
