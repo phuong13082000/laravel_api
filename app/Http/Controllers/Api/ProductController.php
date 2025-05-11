@@ -55,9 +55,7 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::with('category')
-            ->where('slug', $slug)
-            ->first();
+        $product = Product::with('category')->where('slug', $slug)->first();
 
         if (!$product) {
             return $this->responseError('Product not found');

@@ -12,7 +12,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('created_at', 'desc')->get();
         $tree = buildTreeCategory($categories);
 
         return $this->responseSuccess($tree);
@@ -22,7 +22,11 @@ class CategoryController extends Controller
     {
         $request->validate([
             'title' => 'required',
+            'slug' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
+            'icon' => 'string',
+            'color' => 'string',
+            'description' => 'string',
         ]);
 
         $category = Category::create([
@@ -73,6 +77,11 @@ class CategoryController extends Controller
         $request->validate([
             'title' => 'required',
             'parent_id' => 'nullable|exists:categories,id',
+            'icon' => 'string',
+            'color' => 'string',
+            'description' => 'string',
+            'image' => 'nullable|image',
+            'slug' => 'nullable|string',
         ]);
 
         $category = Category::find($id);
@@ -100,7 +109,7 @@ class CategoryController extends Controller
             $category->save();
         }
 
-        return $this->responseSuccess(data: []);
+        return $this->responseSuccess([]);
     }
 
     public function destroy($id)

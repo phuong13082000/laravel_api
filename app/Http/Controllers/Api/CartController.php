@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -13,11 +12,10 @@ class CartController extends Controller
     {
         $user = $request->user();
 
-        $cartItems = Cart::with('product.category')
-            ->where('user_id', $user->id)
-            ->get();
+        $cartItems = $user->carts()->with('product.category')->orderBy('created_at')->get();
 
-        $totalQuantity = $cartItems->sum('quantity');;
+        $totalQuantity = $cartItems->sum('quantity');
+
         $totalPrice = 0;
 
         foreach ($cartItems as $cartItem) {
@@ -25,7 +23,7 @@ class CartController extends Controller
 
             if (!empty($cartItem->product)) {
                 $product = $cartItem->product;
-                $product->makeHidden('created_at', 'updated_at', 'category_id');
+                $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
 
                 $price = $product->discount ?? $product->price;
                 $totalPrice += $price * $cartItem->quantity;

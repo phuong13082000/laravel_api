@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,18 +15,11 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+        $user = User::with('addresses')->where('email', $request['email'])->first();
 
-        $credentials = $request->only('email', 'password');
-
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($request['password'], $user->password)) {
             return $this->responseError('Invalid credentials');
         }
 
@@ -34,26 +29,21 @@ class AuthController extends Controller
 
         $token = generateToken($user);
 
-        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
-
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
         }
 
         return $this->responseSuccess([
+            'id' => $user->id,
             'token' => $token,
-            'user' => $user
+            'name' => $user->name,
+            'email' => $user->email,
+            'addresses' => $user->addresses,
         ]);
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
         $user = User::create([
             'name' => $request['name'],
             'email' => $request['email'],
@@ -62,29 +52,35 @@ class AuthController extends Controller
 
         $token = generateToken($user);
 
-        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
+        $user->load('addresses');
 
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
         }
 
         return $this->responseSuccess([
+            'id' => $user->id,
             'token' => $token,
-            'user' => $user
+            'name' => $user->name,
+            'email' => $user->email,
+            'addresses' => $user->addresses,
         ]);
     }
 
     public function user(Request $request)
     {
-        $user = $request->user();
-
-        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
+        $user = $request->user()->load('addresses');
 
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
         }
 
-        return $this->responseSuccess($user);
+        return $this->responseSuccess([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'addresses' => $user->addresses,
+        ]);
     }
 
     public function logout(Request $request)
@@ -105,11 +101,7 @@ class AuthController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
 
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => bcrypt($password),
-                ])->save();
-            }
+            fn($user, $password) => $user->forceFill(['password' => bcrypt($password)])->save()
         );
 
         return $this->responseSuccess([], message: __($status));
@@ -131,10 +123,7 @@ class AuthController extends Controller
 
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
-            [
-                'token' => bcrypt($token),
-                'created_at' => Carbon::now()
-            ]
+            ['token' => bcrypt($token), 'created_at' => Carbon::now()],
         );
 
         return $this->responseSuccess(['reset_token' => $token]);
@@ -153,61 +142,5 @@ class AuthController extends Controller
         $user->update($request->only('email', 'name', 'password'));
 
         return $this->responseSuccess($user);
-    }
-
-    public function createAddress(Request $request)
-    {
-        $user = $request->user();
-
-        $request->validate([
-            'address_line' => 'string',
-            'city' => 'string',
-            'state' => 'string',
-            'pincode' => 'string',
-            'country' => 'string',
-            'mobile' => 'string',
-        ]);
-
-        $user->addresses()->create([
-            'address_line' => $request['address_line'],
-            'city' => $request['city'],
-            'state' => $request['state'],
-            'pincode' => $request['pincode'],
-            'country' => $request['country'],
-            'mobile' => $request['mobile'],
-        ]);
-
-        return $this->responseSuccess([]);
-    }
-
-    public function updateAddress(Request $request, $id)
-    {
-        $user = $request->user();
-
-        $request->validate([
-            'address_line' => 'string',
-            'city' => 'string',
-            'state' => 'string',
-            'pincode' => 'string',
-            'country' => 'string',
-            'mobile' => 'string',
-        ]);
-
-        $address = $user->addresses()->where('id', $id)->first();
-
-        if (!$address) {
-            return $this->responseError('Address not found');
-        }
-
-        $address->update([
-            'address_line' => $request['address_line'],
-            'city' => $request['city'],
-            'state' => $request['state'],
-            'pincode' => $request['pincode'],
-            'country' => $request['country'],
-            'mobile' => $request['mobile'],
-        ]);
-
-        return $this->responseSuccess([]);
     }
 }
