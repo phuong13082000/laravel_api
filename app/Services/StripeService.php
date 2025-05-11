@@ -12,7 +12,7 @@ class StripeService
         Stripe::setApiKey(config('services.stripe.secret'));
     }
 
-    public function createCheckoutSession($order)
+    public function createCheckoutSession($order): Session
     {
         $lineItems = [];
 

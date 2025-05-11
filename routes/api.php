@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
@@ -35,8 +36,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/update-user', [AuthController::class, 'updateUser']);
-    Route::post('/create-address', [AuthController::class, 'createAddress']);
-    Route::post('/update-address/{id}', [AuthController::class, 'updateAddress']);
+
+    Route::post('/create-address', [AddressController::class, 'createAddress']);
+    Route::post('/update-address/{id}', [AddressController::class, 'updateAddress']);
 
     Route::get('/get-cart-item', [CartController::class, 'getCartItem']);
     Route::post('/add-cart-item/{id}', [CartController::class, 'addCartItem']);;
