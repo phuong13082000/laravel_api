@@ -61,7 +61,7 @@ class CartController extends Controller
             return $this->responseError('Product not enough');
         }
 
-        $user->cart()->create([
+        $user->carts()->create([
             'product_id' => $productId,
             'quantity' => $quantity,
         ]);
@@ -79,7 +79,7 @@ class CartController extends Controller
 
         $quantity = $request['quantity'];
 
-        $cartItem = $user->cart()->where('id', $id)->first();
+        $cartItem = $user->carts()->where('id', $id)->first();
 
         if (!$cartItem) {
             return $this->responseError('Cart item not found');
@@ -102,7 +102,7 @@ class CartController extends Controller
     {
         $user = $request->user();
 
-        $cartItem = $user->cart()->where('id', $id)->first();
+        $cartItem = $user->carts()->where('id', $id)->first();
 
         if (!$cartItem) {
             return $this->responseError('Cart item not found');
