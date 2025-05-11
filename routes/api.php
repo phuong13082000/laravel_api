@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CategoryController;
 
@@ -26,6 +28,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+Route::get('/payment/success', [StripeController::class, 'handleSuccess']);
+Route::get('/payment/cancel', [StripeController::class, 'handleCancel']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/logout', [AuthController::class, 'logout']);
@@ -38,4 +43,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
     Route::delete('/delete-cart-item/{id}', [CartController::class, 'removeCartItem']);
 
+    Route::post('/payment', [OrderController::class, 'payment']);
+    Route::get('/get-order-details', [OrderController::class, 'getOrderDetails']);
+
+    Route::post('/stripe/checkout', [StripeController::class, 'checkout']);
 });

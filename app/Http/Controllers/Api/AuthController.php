@@ -34,9 +34,15 @@ class AuthController extends Controller
 
         $token = generateToken($user);
 
+        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
+
+        foreach ($user->addresses as $address) {
+            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+        }
+
         return $this->responseSuccess([
             'token' => $token,
-            'user' => formatUser($user)
+            'user' => $user
         ]);
     }
 
@@ -56,15 +62,27 @@ class AuthController extends Controller
 
         $token = generateToken($user);
 
+        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
+
+        foreach ($user->addresses as $address) {
+            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+        }
+
         return $this->responseSuccess([
             'token' => $token,
-            'user' => formatUser($user)
+            'user' => $user
         ]);
     }
 
     public function user(Request $request)
     {
-        $user = formatUser($request->user());
+        $user = $request->user();
+
+        $user->load('addresses')->makeHidden('created_at', 'updated_at', 'email_verified_at', 'status', 'role');
+
+        foreach ($user->addresses as $address) {
+            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+        }
 
         return $this->responseSuccess($user);
     }
@@ -150,7 +168,7 @@ class AuthController extends Controller
             'mobile' => 'string',
         ]);
 
-        $user->address()->create([
+        $user->addresses()->create([
             'address_line' => $request['address_line'],
             'city' => $request['city'],
             'state' => $request['state'],
@@ -175,7 +193,7 @@ class AuthController extends Controller
             'mobile' => 'string',
         ]);
 
-        $address = $user->address()->where('id', $id)->first();
+        $address = $user->addresses()->where('id', $id)->first();
 
         if (!$address) {
             return $this->responseError('Address not found');

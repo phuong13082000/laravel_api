@@ -15,14 +15,14 @@ class ProductController extends Controller
         $products = Product::with('category')->get();
 
         foreach ($products as $product) {
-            $product->makeHidden('created_at', 'updated_at', 'category_id');
+            $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
 
             if (!empty($product->category)) {
                 $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
             }
         }
 
-        return $this->responseSuccess(data: $products);
+        return $this->responseSuccess($products);
     }
 
     public function store(Request $request)
@@ -50,7 +50,7 @@ class ProductController extends Controller
             $product->save();
         }
 
-        return $this->responseSuccess(data: []);
+        return $this->responseSuccess([]);
     }
 
     public function show($slug)
@@ -67,20 +67,18 @@ class ProductController extends Controller
             $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
         }
 
-        return $this->responseSuccess(
-            data: [
-                'id' => $product->id,
-                'title' => $product->title,
-                'slug' => $product->slug,
-                'description' => $product->description,
-                'image' => $product->image = media_url($product->image),
-                'price' => $product->price,
-                'unit' => $product->unit,
-                'stock' => $product->stock,
-                'discount' => $product->discount,
-                'publish' => $product->publish,
-                'category' => $product->category,
-            ]);
+        return $this->responseSuccess([
+            'id' => $product->id,
+            'title' => $product->title,
+            'slug' => $product->slug,
+            'description' => $product->description,
+            'image' => $product->image = media_url($product->image),
+            'price' => $product->price,
+            'unit' => $product->unit,
+            'stock' => $product->stock,
+            'discount' => $product->discount,
+            'category' => $product->category,
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -117,7 +115,7 @@ class ProductController extends Controller
             $product->save();
         }
 
-        return $this->responseSuccess(data: []);
+        return $this->responseSuccess([]);
     }
 
     public function destroy($id)
