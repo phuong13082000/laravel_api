@@ -45,7 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
     Route::delete('/delete-cart-item/{id}', [CartController::class, 'removeCartItem']);
 
-    Route::post('/payment', [OrderController::class, 'payment']);
+    Route::post('/orders', [OrderController::class, 'orders']);
     Route::get('/get-order-details', [OrderController::class, 'getOrderDetails']);
 
     Route::post('/stripe/checkout', [StripeController::class, 'checkout']);
