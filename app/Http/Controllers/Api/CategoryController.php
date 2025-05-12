@@ -10,10 +10,29 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    function buildTree($categories, $parentId = null): array
+    {
+        $tree = [];
+
+        foreach ($categories as $category) {
+            if ($category->parent_id == $parentId) {
+                $category->makeHidden('created_at', 'updated_at', 'parent_id');
+
+                $children = $this->buildTree($categories, $category->id);
+
+                $category->children = $children ?: [];
+
+                $tree[] = $category;
+            }
+        }
+
+        return $tree;
+    }
+
     public function index()
     {
-        $categories = Category::orderBy('created_at', 'desc')->get();
-        $tree = buildTreeCategory($categories);
+        $categories = Category::orderBy('created_at', 'DESC')->get();
+        $tree = $this->buildTree($categories);
 
         return $this->responseSuccess($tree);
     }

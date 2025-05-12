@@ -17,17 +17,6 @@ class Category extends Model
         'parent_id',
     ];
 
-    protected static function booted(): void
-    {
-        static::saving(function ($category) {
-            if ($category->parent) {
-                $category->depth = $category->parent->depth + 1;
-            } else {
-                $category->depth = 0;
-            }
-        });
-    }
-
     public function getImageAttribute($value)
     {
         return $value ? asset('storage/' . $value) : null;
