@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function payment(Request $request)
+    public function orders(Request $request)
     {
         $user = $request->user();
 
