@@ -1,61 +1,113 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository contains the source code for an API built with Laravel, a powerful and flexible PHP framework.
 
-## About Laravel
+## Introduction
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This project is a RESTful API developed using Laravel, providing endpoints to interact with application data. This API is designed to support front-end applications, mobile apps, and third-party services.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## System Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.2
+- Composer
+- MySQL or MariaDB
+- Laravel 12
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Step 1: Clone the repository
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+git clone https://github.com/phuong13082000/laravel_api.git
+cd laravel_api
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Step 2: Install dependencies
 
-## Laravel Sponsors
+```bash
+composer install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Step 3: Set up environment
 
-### Premium Partners
+Copy the `.env.example` file to `.env`:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+cp .env.example .env
+```
 
-## Contributing
+Then edit the `.env` file to configure your database connection and other settings.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Step 4: Generate application key
 
-## Code of Conduct
+```bash
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Step 5: Run migrations and seeders
 
-## Security Vulnerabilities
+```bash
+php artisan migrate --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Step 6: Start the development server
+
+```bash
+php artisan serve
+```
+
+The server will run at: `http://localhost:8000`
+
+## API Structure
+
+The API is organized according to RESTful principles with the following routes:
+
+### Authentication
+
+- `POST /api/register` - Register a new user
+- `POST /api/login` - Login and retrieve JWT token
+- `POST /api/logout` - Logout and invalidate token
+- `GET /api/user` - Get current user information
+- ...
+
+### Resources
+
+- `GET /api/products` - Get list of products
+- `GET /api/products/{slug}` - Get detailed product information
+- `POST /api/products` - Create a new product
+- `PUT /api/products/{id}` - Update product information
+- `DELETE /api/products/{id}` - Delete a product
+- ...
+
+## Authentication and Authorization
+
+The API uses JWT (JSON Web Tokens) for user authentication. To use protected endpoints, you need to:
+
+1. Login via `/api/login` to receive a token
+2. Add the token to the header of subsequent requests:
+   ```
+   Authorization: Bearer {your_token}
+   ```
+
+## Error Handling
+
+The API returns standard HTTP error codes and JSON messages:
+
+- `200 OK` - Request successful
+- `201 Created` - Resource created successfully
+- `400 Bad Request` - Invalid request
+- `401 Unauthorized` - Authentication failed
+- `403 Forbidden` - Insufficient access rights
+- `404 Not Found` - Resource not found
+- `422 Unprocessable Entity` - Invalid input data
+- `500 Internal Server Error` - Server error
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+Phuong - [GitHub](https://github.com/phuong13082000)
+
+Project Link: [https://github.com/phuong13082000/laravel_api](https://github.com/phuong13082000/laravel_api)
