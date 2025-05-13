@@ -12,16 +12,10 @@ use App\Http\Controllers\Api\CategoryController;
 //category
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/category/{slug}', [CategoryController::class, 'show']);
-Route::post('/category', [CategoryController::class, 'store']);
-Route::post('/category/{id}', [CategoryController::class, 'update']);
-Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
 
 //product
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/product/{slug}', [ProductController::class, 'show']);
-Route::post('/product', [ProductController::class, 'store']);
-Route::post('/product/{id}', [ProductController::class, 'update']);
-Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 
 //auth
 Route::post('/login', [AuthController::class, 'login']);
@@ -32,8 +26,8 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/payment/success', [StripeController::class, 'handleSuccess']);
 Route::get('/payment/cancel', [StripeController::class, 'handleCancel']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/user', [AuthController::class, 'user']);
+Route::prefix('user')->middleware(['auth:sanctum', 'role:admin,user'])->group(function () {
+    Route::get('/profile', [AuthController::class, 'user']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/update-user', [AuthController::class, 'updateUser']);
 
@@ -49,4 +43,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get-order-details', [OrderController::class, 'getOrderDetails']);
 
     Route::post('/stripe/checkout', [StripeController::class, 'checkout']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('/category', [CategoryController::class, 'store']);
+    Route::post('/category/{id}', [CategoryController::class, 'update']);
+    Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
+
+    Route::post('/product', [ProductController::class, 'store']);
+    Route::post('/product/{id}', [ProductController::class, 'update']);
+    Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 });
