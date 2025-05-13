@@ -15,6 +15,16 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    private function generateToken(User $user): string
+    {
+        $token = $user->createToken('user-token');
+        $accessToken = $token->accessToken;
+        $accessToken['expires_at'] = now()->addDays(7);
+        $accessToken->save();
+
+        return $token->plainTextToken;
+    }
+
     public function login(LoginRequest $request)
     {
         $user = User::with('addresses')->where('email', $request['email'])->first();
@@ -27,7 +37,7 @@ class AuthController extends Controller
             return $this->responseError('Your account is not active. Contact the administrator');
         }
 
-        $token = generateToken($user);
+        $token = $this->generateToken($user);
 
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
@@ -50,7 +60,7 @@ class AuthController extends Controller
             'password' => Hash::make($request['password']),
         ]);
 
-        $token = generateToken($user);
+        $token = $this->generateToken($user);
 
         $user->load('addresses');
 
@@ -80,6 +90,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'addresses' => $user->addresses,
+            'role' => $user->role,
         ]);
     }
 
