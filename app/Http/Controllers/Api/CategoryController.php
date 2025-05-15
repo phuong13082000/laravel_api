@@ -17,11 +17,8 @@ class CategoryController extends Controller
         foreach ($categories as $category) {
             if ($category->parent_id == $parentId) {
                 $category->makeHidden('created_at', 'updated_at', 'parent_id');
-
                 $children = $this->buildTree($categories, $category->id);
-
                 $category->children = $children ?: [];
-
                 $tree[] = $category;
             }
         }

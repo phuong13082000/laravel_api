@@ -40,7 +40,7 @@ class AuthController extends Controller
         $token = $this->generateToken($user);
 
         foreach ($user->addresses as $address) {
-            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+            $address->makeHidden('user_id', 'created_at', 'updated_at');
         }
 
         return $this->responseSuccess([
@@ -49,6 +49,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'addresses' => $user->addresses,
+            'role' => $user->role,
         ]);
     }
 
@@ -65,7 +66,7 @@ class AuthController extends Controller
         $user->load('addresses');
 
         foreach ($user->addresses as $address) {
-            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+            $address->makeHidden('user_id', 'created_at', 'updated_at');
         }
 
         return $this->responseSuccess([
@@ -74,6 +75,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'addresses' => $user->addresses,
+            'role' => 'user',
         ]);
     }
 
@@ -82,7 +84,7 @@ class AuthController extends Controller
         $user = $request->user()->load('addresses');
 
         foreach ($user->addresses as $address) {
-            $address->makeHidden('user_id', 'created_at', 'updated_at', 'status');
+            $address->makeHidden('user_id', 'created_at', 'updated_at');
         }
 
         return $this->responseSuccess([

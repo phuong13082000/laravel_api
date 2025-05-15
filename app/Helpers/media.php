@@ -5,9 +5,7 @@ use Illuminate\Support\Facades\Storage;
 if (!function_exists('media_url')) {
     function media_url(?string $path): ?string
     {
-        if (!$path) {
-            return null;
-        }
+        if (!$path) return null;
 
         return asset('storage/' . ltrim($path, '/'));
     }
