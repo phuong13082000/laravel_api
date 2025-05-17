@@ -62,4 +62,20 @@ class AddressController extends Controller
 
         return $this->responseSuccess([]);
     }
+
+    public function deleteAddress(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $address = $user->addresses()->where('id', $id)->first();
+
+        if (!$address) {
+            return $this->responseError('Address not found');
+        }
+
+        $address->status = 0;
+        $address->save();
+
+        return $this->responseSuccess([]);
+    }
 }

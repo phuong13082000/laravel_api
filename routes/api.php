@@ -34,10 +34,11 @@ Route::prefix('user')->middleware(['auth:sanctum', 'role:admin,user'])->group(fu
 
     Route::post('/create-address', [AddressController::class, 'createAddress']);
     Route::put('/update-address/{id}', [AddressController::class, 'updateAddress']);
+    Route::delete('/delete-address/{id}', [AddressController::class, 'deleteAddress']);
 
     Route::get('/get-cart-item', [CartController::class, 'getCartItem']);
-    Route::post('/add-cart-item/{id}', [CartController::class, 'addCartItem']);;
-    Route::post('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
+    Route::post('/add-cart-item', [CartController::class, 'addCartItem']);;
+    Route::put('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
     Route::delete('/delete-cart-item/{id}', [CartController::class, 'removeCartItem']);
 
     Route::post('/orders', [OrderController::class, 'orders']);
