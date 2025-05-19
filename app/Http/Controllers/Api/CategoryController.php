@@ -4,12 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    protected ImageUploadService $imageUploadService;
+
+    public function __construct(ImageUploadService $imageUploadService)
+    {
+        $this->imageUploadService = $imageUploadService;
+    }
+
     function buildTree($categories, $parentId = null): array
     {
         $tree = [];
@@ -40,9 +47,9 @@ class CategoryController extends Controller
             'title' => 'required',
             'slug' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'icon' => 'string',
-            'color' => 'string',
-            'description' => 'string',
+            'icon' => 'nullable|string',
+            'color' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $category = Category::create([
@@ -55,7 +62,7 @@ class CategoryController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('category', 'public');
+            $path = $this->imageUploadService->uploadImage($request->file('image'), 'category');
             $category->image = $path;
             $category->save();
         }
@@ -82,7 +89,7 @@ class CategoryController extends Controller
             'icon' => $category->icon,
             'color' => $category->color,
             'description' => $category->description,
-            'image' => $category->image = media_url($category->image),
+            'image' => $category->image,
             'depth' => $category->depth,
             'children' => $category->children,
         ]);
@@ -91,16 +98,16 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required',
+            'title' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'icon' => 'string',
-            'color' => 'string',
-            'description' => 'string',
+            'icon' => 'nullable|string',
+            'color' => 'nullable|string',
+            'description' => 'nullable|string',
             'image' => 'nullable|image',
             'slug' => 'nullable|string',
         ]);
 
-        $category = Category::find($id);
+        $category = Category::findOrFail($id);
 
         if (!$category) {
             return $this->responseError('Category not found');
@@ -116,12 +123,13 @@ class CategoryController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if (media_exists($category->image)) {
-                Storage::disk('public')->delete($category->image);
-            }
+            $newImagePath = $this->imageUploadService->updateImage(
+                $request->file('image'),
+                "category/" . basename($category->image),
+                'category'
+            );
 
-            $path = $request->file('image')->store('category', 'public');
-            $category->image = $path;
+            $category->image = $newImagePath;
             $category->save();
         }
 
@@ -140,8 +148,8 @@ class CategoryController extends Controller
             return $this->responseError('Cannot delete category with children');
         }
 
-        if (media_exists($category->image)) {
-            Storage::disk('public')->delete($category->image);
+        if ($this->imageUploadService->imageExists("category/" . basename($category->image))) {
+            $this->imageUploadService->deleteImage("category/" . basename($category->image));
         }
 
         $category->delete();

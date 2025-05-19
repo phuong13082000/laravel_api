@@ -4,12 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    protected ImageUploadService $imageUploadService;
+
+    public function __construct(ImageUploadService $imageUploadService)
+    {
+        $this->imageUploadService = $imageUploadService;
+    }
+
     public function index(Request $request)
     {
         $page = $request->input('page', 1);
@@ -28,7 +35,7 @@ class ProductController extends Controller
         $totalCount = $query->count();
 
         $products = $query->with(['category'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'DESC')
             ->skip(($page - 1) * $limit)
             ->take($limit)
             ->get();
@@ -76,6 +83,12 @@ class ProductController extends Controller
         $request->validate([
             'title' => 'required|string',
             'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'unit' => 'nullable|string',
+            'stock' => 'nullable|integer',
+            'discount' => 'nullable|integer',
+            'publish' => 'nullable|boolean',
         ]);
 
         $product = Product::create([
@@ -91,7 +104,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('product', 'public');
+            $path = $this->imageUploadService->uploadImage($request->file('image'), 'product');
             $product->image = $path;
             $product->save();
         }
@@ -128,10 +141,17 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'string',
+            'title' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'unit' => 'nullable|string',
+            'stock' => 'nullable|integer',
+            'discount' => 'nullable|integer',
+            'publish' => 'nullable|boolean',
         ]);
 
-        $product = Product::find($id);
+        $product = Product::where('id', $id)->first();
 
         if (!$product) {
             return $this->responseError('Product not found');
@@ -150,12 +170,13 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if (media_exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
+            $newImagePath = $this->imageUploadService->updateImage(
+                $request->file('image'),
+                "product/" . basename($product->image),
+                'product'
+            );
 
-            $path = $request->file('image')->store('product', 'public');
-            $product->image = $path;
+            $product->image = $newImagePath;
             $product->save();
         }
 
@@ -170,8 +191,8 @@ class ProductController extends Controller
             return $this->responseError('Product not found');
         }
 
-        if (media_exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+        if ($this->imageUploadService->imageExists("product/" . basename($product->image))) {
+            $this->imageUploadService->deleteImage("product/" . basename($product->image));
         }
 
         $product->delete();
