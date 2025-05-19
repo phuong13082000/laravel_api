@@ -4,21 +4,74 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index()
+    protected ImageUploadService $imageUploadService;
+
+    public function __construct(ImageUploadService $imageUploadService)
     {
-        $products = Product::with('category')->get();
+        $this->imageUploadService = $imageUploadService;
+    }
+
+    public function index(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 10);
+        $search = $request->input('search');
+
+        $page = ($page < 1) ? 1 : $page;
+        $limit = ($limit < 1 || $limit > 20) ? 10 : $limit;
+
+        $query = Product::query();
+
+        if ($search) {
+            $query->where('title', 'like', "%$search%");
+        }
+
+        $totalCount = $query->count();
+
+        $products = $query->with(['category'])
+            ->orderBy('created_at', 'DESC')
+            ->skip(($page - 1) * $limit)
+            ->take($limit)
+            ->get();
 
         foreach ($products as $product) {
             $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
 
             if (!empty($product->category)) {
-                $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
+                $product->category->makeHidden('created_at', 'updated_at', 'parent_id');
+            }
+        }
+
+        return $this->responseSuccess([
+            'data' => $products,
+            'totalCount' => $totalCount,
+            'totalNoPages' => ceil($totalCount / $limit),
+        ]);
+    }
+
+    public function getProductByCategory(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $products = Product::with(['category'])
+            ->where('category_id', $request['category_id'])
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->get();
+
+        foreach ($products as $product) {
+            $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
+
+            if (!empty($product->category)) {
+                $product->category->makeHidden('created_at', 'updated_at', 'parent_id');
             }
         }
 
@@ -30,6 +83,12 @@ class ProductController extends Controller
         $request->validate([
             'title' => 'required|string',
             'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'unit' => 'nullable|string',
+            'stock' => 'nullable|integer',
+            'discount' => 'nullable|integer',
+            'publish' => 'nullable|boolean',
         ]);
 
         $product = Product::create([
@@ -45,7 +104,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('product', 'public');
+            $path = $this->imageUploadService->uploadImage($request->file('image'), 'product');
             $product->image = $path;
             $product->save();
         }
@@ -70,7 +129,7 @@ class ProductController extends Controller
             'title' => $product->title,
             'slug' => $product->slug,
             'description' => $product->description,
-            'image' => $product->image = media_url($product->image),
+            'image' => [$product->image],
             'price' => $product->price,
             'unit' => $product->unit,
             'stock' => $product->stock,
@@ -82,10 +141,17 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'string',
+            'title' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'unit' => 'nullable|string',
+            'stock' => 'nullable|integer',
+            'discount' => 'nullable|integer',
+            'publish' => 'nullable|boolean',
         ]);
 
-        $product = Product::find($id);
+        $product = Product::where('id', $id)->first();
 
         if (!$product) {
             return $this->responseError('Product not found');
@@ -104,12 +170,13 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if (media_exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
+            $newImagePath = $this->imageUploadService->updateImage(
+                $request->file('image'),
+                "product/" . basename($product->image),
+                'product'
+            );
 
-            $path = $request->file('image')->store('product', 'public');
-            $product->image = $path;
+            $product->image = $newImagePath;
             $product->save();
         }
 
@@ -124,8 +191,8 @@ class ProductController extends Controller
             return $this->responseError('Product not found');
         }
 
-        if (media_exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+        if ($this->imageUploadService->imageExists("product/" . basename($product->image))) {
+            $this->imageUploadService->deleteImage("product/" . basename($product->image));
         }
 
         $product->delete();

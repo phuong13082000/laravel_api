@@ -14,7 +14,8 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/category/{slug}', [CategoryController::class, 'show']);
 
 //product
-Route::get('/products', [ProductController::class, 'index']);
+Route::post('/products', [ProductController::class, 'index']);
+Route::post('/product/get-product-by-category', [ProductController::class, 'getProductByCategory']);
 Route::get('/product/{slug}', [ProductController::class, 'show']);
 
 //auth
@@ -33,9 +34,10 @@ Route::prefix('user')->middleware(['auth:sanctum', 'role:admin,user'])->group(fu
 
     Route::post('/create-address', [AddressController::class, 'createAddress']);
     Route::post('/update-address/{id}', [AddressController::class, 'updateAddress']);
+    Route::delete('/delete-address/{id}', [AddressController::class, 'deleteAddress']);
 
     Route::get('/get-cart-item', [CartController::class, 'getCartItem']);
-    Route::post('/add-cart-item/{id}', [CartController::class, 'addCartItem']);;
+    Route::post('/add-cart-item', [CartController::class, 'addCartItem']);;
     Route::post('/update-cart-item/{id}', [CartController::class, 'updateCartItem']);
     Route::delete('/delete-cart-item/{id}', [CartController::class, 'removeCartItem']);
 

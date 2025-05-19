@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    private function priceWithDiscount($price, $discount = 1): float
+    {
+        $price = floatval($price);
+        $dis = floatval($discount);
+
+        $discountAmount = ceil(($price * $dis) / 100);
+
+        return $price - $discountAmount;
+    }
+
     public function getCartItem(Request $request)
     {
         $user = $request->user();
@@ -25,7 +35,8 @@ class CartController extends Controller
                 $product = $cartItem->product;
                 $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
 
-                $price = $product->discount ?? $product->price;
+                $price = $this->priceWithDiscount($product->price, $product->discount);
+
                 $totalPrice += $price * $cartItem->quantity;
 
                 if (!empty($product->category)) {
