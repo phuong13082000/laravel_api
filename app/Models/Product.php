@@ -21,6 +21,10 @@ class Product extends Model
         'publish',
     ];
 
+    protected $casts = [
+        'more_details' => 'json',
+    ];
+
     public function getImageAttribute($value)
     {
         return $value ? asset('storage/' . $value) : null;

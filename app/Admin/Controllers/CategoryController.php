@@ -41,8 +41,8 @@ class CategoryController extends AdminController
 
         $form->text('title', __('Title'));
         $form->text('slug', __('Slug'));
-        $form->text('icon', __('Icon'));
-        $form->text('color', __('Color'));
+        $form->icon('icon', __('Icon'));
+        $form->color('color', __('Color'));
         $form->textarea('description', __('Description'));
         $form->image('image', __('Image'))
             ->move('category')

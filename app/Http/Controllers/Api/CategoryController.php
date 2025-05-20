@@ -24,8 +24,19 @@ class CategoryController extends Controller
         foreach ($categories as $category) {
             if ($category->parent_id == $parentId) {
                 $category->makeHidden('created_at', 'updated_at', 'parent_id');
+
+                if(!empty($category->image)){
+                    $category->image = $this->imageUploadService->getImageUrl($category->image);
+                }
+
                 $children = $this->buildTree($categories, $category->id);
-                $category->children = $children ?: [];
+
+                if ($children) {
+                    $category->children = $children;
+                } else {
+                    $category->children = [];
+                }
+
                 $tree[] = $category;
             }
         }
@@ -80,6 +91,10 @@ class CategoryController extends Controller
 
         foreach ($category->children as $child) {
             $child->makeHidden('created_at', 'updated_at', 'parent_id');
+
+            if(!empty($child->image)){
+                $child->image = $this->imageUploadService->getImageUrl($child->image);
+            }
         }
 
         return $this->responseSuccess([
@@ -89,8 +104,7 @@ class CategoryController extends Controller
             'icon' => $category->icon,
             'color' => $category->color,
             'description' => $category->description,
-            'image' => $category->image,
-            'depth' => $category->depth,
+            'image' => $this->imageUploadService->getImageUrl($category->image),
             'children' => $category->children,
         ]);
     }
@@ -125,7 +139,7 @@ class CategoryController extends Controller
         if ($request->hasFile('image')) {
             $newImagePath = $this->imageUploadService->updateImage(
                 $request->file('image'),
-                "category/" . basename($category->image),
+                $category->image,
                 'category'
             );
 
@@ -148,8 +162,8 @@ class CategoryController extends Controller
             return $this->responseError('Cannot delete category with children');
         }
 
-        if ($this->imageUploadService->imageExists("category/" . basename($category->image))) {
-            $this->imageUploadService->deleteImage("category/" . basename($category->image));
+        if ($this->imageUploadService->imageExists($category->image)) {
+            $this->imageUploadService->deleteImage($category->image);
         }
 
         $category->delete();
