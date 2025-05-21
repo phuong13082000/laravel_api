@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class ImageUploadService
 {
-    protected $disk = 'public';
+    protected string $disk = 'public';
 
     public function uploadImage(
         UploadedFile $file,

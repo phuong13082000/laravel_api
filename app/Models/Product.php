@@ -25,11 +25,6 @@ class Product extends Model
         'more_details' => 'json',
     ];
 
-    public function getImageAttribute($value)
-    {
-        return $value ? asset('storage/' . $value) : null;
-    }
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');

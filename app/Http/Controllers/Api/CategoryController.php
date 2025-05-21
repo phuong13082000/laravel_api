@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\FormatDataService;
 use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -11,10 +12,15 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     protected ImageUploadService $imageUploadService;
+    protected FormatDataService $formatData;
 
-    public function __construct(ImageUploadService $imageUploadService)
+    public function __construct(
+        ImageUploadService $imageUploadService,
+        FormatDataService  $formatData,
+    )
     {
         $this->imageUploadService = $imageUploadService;
+        $this->formatData = $formatData;
     }
 
     function buildTree($categories, $parentId = null): array
@@ -23,11 +29,7 @@ class CategoryController extends Controller
 
         foreach ($categories as $category) {
             if ($category->parent_id == $parentId) {
-                $category->makeHidden('created_at', 'updated_at', 'parent_id');
-
-                if(!empty($category->image)){
-                    $category->image = $this->imageUploadService->getImageUrl($category->image);
-                }
+                $this->formatData->cleanDataCategory($category);
 
                 $children = $this->buildTree($categories, $category->id);
 
@@ -90,11 +92,7 @@ class CategoryController extends Controller
         }
 
         foreach ($category->children as $child) {
-            $child->makeHidden('created_at', 'updated_at', 'parent_id');
-
-            if(!empty($child->image)){
-                $child->image = $this->imageUploadService->getImageUrl($child->image);
-            }
+            $this->formatData->cleanDataCategory($child);
         }
 
         return $this->responseSuccess([

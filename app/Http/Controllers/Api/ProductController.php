@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\FormatDataService;
 use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -11,10 +12,15 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     protected ImageUploadService $imageUploadService;
+    protected FormatDataService $formatData;
 
-    public function __construct(ImageUploadService $imageUploadService)
+    public function __construct(
+        ImageUploadService $imageUploadService,
+        FormatDataService  $formatData,
+    )
     {
         $this->imageUploadService = $imageUploadService;
+        $this->formatData = $formatData;
     }
 
     public function index(Request $request)
@@ -41,11 +47,7 @@ class ProductController extends Controller
             ->get();
 
         foreach ($products as $product) {
-            $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
-
-            if (!empty($product->category)) {
-                $product->category->makeHidden('created_at', 'updated_at', 'parent_id');
-            }
+            $this->formatData->cleanDataProduct($product);
         }
 
         return $this->responseSuccess([
@@ -68,11 +70,7 @@ class ProductController extends Controller
             ->get();
 
         foreach ($products as $product) {
-            $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
-
-            if (!empty($product->category)) {
-                $product->category->makeHidden('created_at', 'updated_at', 'parent_id');
-            }
+            $this->formatData->cleanDataProduct($product);
         }
 
         return $this->responseSuccess($products);
@@ -120,8 +118,12 @@ class ProductController extends Controller
             return $this->responseError('Product not found');
         }
 
+        if (!empty($product->image)) {
+            $product->image = $this->imageUploadService->getImageUrl($product->image);
+        }
+
         if (!empty($product->category)) {
-            $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
+            $this->formatData->cleanDataCategory($product->category);
         }
 
         return $this->responseSuccess([
@@ -135,6 +137,7 @@ class ProductController extends Controller
             'stock' => $product->stock,
             'discount' => $product->discount,
             'category' => $product->category,
+            'more_details' => $product->more_details,
         ]);
     }
 
