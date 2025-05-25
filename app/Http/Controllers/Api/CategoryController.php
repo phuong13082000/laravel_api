@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\FormatDataService;
 use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -11,10 +12,15 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     protected ImageUploadService $imageUploadService;
+    protected FormatDataService $formatData;
 
-    public function __construct(ImageUploadService $imageUploadService)
+    public function __construct(
+        ImageUploadService $imageUploadService,
+        FormatDataService  $formatData,
+    )
     {
         $this->imageUploadService = $imageUploadService;
+        $this->formatData = $formatData;
     }
 
     function buildTree($categories, $parentId = null): array
@@ -23,9 +29,16 @@ class CategoryController extends Controller
 
         foreach ($categories as $category) {
             if ($category->parent_id == $parentId) {
-                $category->makeHidden('created_at', 'updated_at', 'parent_id');
+                $this->formatData->cleanDataCategory($category);
+
                 $children = $this->buildTree($categories, $category->id);
-                $category->children = $children ?: [];
+
+                if ($children) {
+                    $category->children = $children;
+                } else {
+                    $category->children = [];
+                }
+
                 $tree[] = $category;
             }
         }
@@ -79,7 +92,7 @@ class CategoryController extends Controller
         }
 
         foreach ($category->children as $child) {
-            $child->makeHidden('created_at', 'updated_at', 'parent_id');
+            $this->formatData->cleanDataCategory($child);
         }
 
         return $this->responseSuccess([
@@ -89,8 +102,7 @@ class CategoryController extends Controller
             'icon' => $category->icon,
             'color' => $category->color,
             'description' => $category->description,
-            'image' => $category->image,
-            'depth' => $category->depth,
+            'image' => $this->imageUploadService->getImageUrl($category->image),
             'children' => $category->children,
         ]);
     }
@@ -125,7 +137,7 @@ class CategoryController extends Controller
         if ($request->hasFile('image')) {
             $newImagePath = $this->imageUploadService->updateImage(
                 $request->file('image'),
-                "category/" . basename($category->image),
+                $category->image,
                 'category'
             );
 
@@ -148,8 +160,8 @@ class CategoryController extends Controller
             return $this->responseError('Cannot delete category with children');
         }
 
-        if ($this->imageUploadService->imageExists("category/" . basename($category->image))) {
-            $this->imageUploadService->deleteImage("category/" . basename($category->image));
+        if ($this->imageUploadService->imageExists($category->image)) {
+            $this->imageUploadService->deleteImage($category->image);
         }
 
         $category->delete();

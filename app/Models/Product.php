@@ -21,10 +21,9 @@ class Product extends Model
         'publish',
     ];
 
-    public function getImageAttribute($value)
-    {
-        return $value ? asset('storage/' . $value) : null;
-    }
+    protected $casts = [
+        'more_details' => 'json',
+    ];
 
     public function category(): BelongsTo
     {

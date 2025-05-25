@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\FormatDataService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    protected FormatDataService $formatData;
+
+    public function __construct(FormatDataService $formatData)
+    {
+        $this->formatData = $formatData;
+    }
+
     private function priceWithDiscount($price, $discount = 1): float
     {
         $price = floatval($price);
@@ -32,16 +40,11 @@ class CartController extends Controller
             $cartItem->makeHidden('created_at', 'updated_at', 'product_id', 'user_id');
 
             if (!empty($cartItem->product)) {
+                $this->formatData->cleanDataProduct($cartItem->product);
+
                 $product = $cartItem->product;
-                $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
-
                 $price = $this->priceWithDiscount($product->price, $product->discount);
-
                 $totalPrice += $price * $cartItem->quantity;
-
-                if (!empty($product->category)) {
-                    $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
-                }
             }
         }
 
