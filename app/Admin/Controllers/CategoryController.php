@@ -18,7 +18,6 @@ class CategoryController extends AdminController
         $grid = new Grid(new Category());
         $grid->model()->latest();
 
-        $grid->column('id', __('Id'));
         $grid->column('image', 'Image')->image('', 150, 150);
         $grid->column('title', __('Title'));
         $grid->column('slug', __('Slug'));
@@ -41,7 +40,7 @@ class CategoryController extends AdminController
 
         $form->text('title', __('Title'));
         $form->text('slug', __('Slug'));
-        $form->icon('icon', __('Icon'));
+        $form->icon('icon', __('Icon'))->default(null);
         $form->color('color', __('Color'));
         $form->textarea('description', __('Description'));
         $form->image('image', __('Image'))
