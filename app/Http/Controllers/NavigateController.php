@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NavigateController extends Controller
 {
@@ -64,84 +67,25 @@ class NavigateController extends Controller
                 'active' => false,
             ],
         ];
-        $data['products'] = [
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product1.jpg'), 'badge' => null],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product2.jpg'), 'badge' => null],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product3.jpg'), 'badge' => null],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product4.jpg'), 'badge' => asset('client/images/home/new.png')],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product5.jpg'), 'badge' => asset('client/images/home/sale.png')],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/product6.jpg'), 'badge' => null],
-        ];
-        $data['categoriesProducts'] = [
-            [
-                'id' => '1',
-                'slug' => 'tshirt',
-                'title' => 'T-Shirt',
-                'active' => true,
-                'products' => [
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery1.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery2.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery3.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery4.jpg')],
-                ]
-            ],
-            [
-                'id' => '2',
-                'slug' => 'blazers',
-                'title' => 'Blazers',
-                'active' => false,
-                'products' => [
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery4.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery3.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery2.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery1.jpg')],
-                ]
-            ],
-            [
-                'id' => '3',
-                'slug' => 'sunglass',
-                'title' => 'Sunglass',
-                'active' => false,
-                'products' => [
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery3.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery4.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery1.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery2.jpg')],
-                ]
-            ],
-            [
-                'id' => '4',
-                'slug' => 'kids',
-                'title' => 'Kids',
-                'active' => false,
-                'products' => [
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery1.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery2.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery3.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery4.jpg')],
-                ]
-            ],
-            [
-                'id' => '5',
-                'slug' => 'poloshirt',
-                'title' => 'Polo shirt',
-                'active' => false,
-                'products' => [
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery2.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery4.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery3.jpg')],
-                    ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/gallery1.jpg')],
-                ]
-            ],
-        ];
-        $data['recommendedItems'] = [
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend1.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend2.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend3.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend1.jpg'), 'active' => false],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend2.jpg'), 'active' => false],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend3.jpg'), 'active' => false],
-        ];
+
+        $data['products'] = Product::where('category_id', null)
+            ->where('publish', 1)
+            ->orderBy('created_at', 'DESC')
+            ->take(6)
+            ->get();
+
+        $data['categoriesProducts'] = Category::with('products')
+            ->whereHas('products', function ($query) {
+                $query->where('publish', '1')->take(4);
+            })
+            ->take(5)
+            ->get();
+
+        $data['recommendedItems'] = Product::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(more_details, '$.\"product-recommend\"'))")
+            ->where('publish', 1)
+            ->orderBy('created_at', 'DESC')
+            ->take(6)
+            ->get();
 
         return view('pages.home', $data);
     }
@@ -165,20 +109,12 @@ class NavigateController extends Controller
             ['title' => 'Boudestijn', 'total' => 9],
             ['title' => 'Rösch creative culture', 'total' => 4],
         ];
-        $data['products'] = [
-            ['image' => asset('client/images/shop/product12.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/shop/product11.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/shop/product10.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/shop/product9.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition', 'badge' => asset('client/images/home/new.png'),],
-            ['image' => asset('client/images/shop/product8.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition', 'badge' => asset('client/images/home/sale.png'),],
-            ['image' => asset('client/images/shop/product7.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product6.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product5.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product4.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product3.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product2.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-            ['image' => asset('client/images/home/product1.jpg'), 'price' => 56, 'title' => 'Easy Polo Black Edition',],
-        ];
+
+        $data['products'] = Product::where('category_id', null)
+            ->where('publish', 1)
+            ->orderBy('created_at', 'DESC')
+            ->take(12)
+            ->get();
 
         return view('pages.shop', $data);
     }
@@ -197,35 +133,29 @@ class NavigateController extends Controller
             ['title' => 'Boudestijn', 'total' => 9],
             ['title' => 'Rösch creative culture', 'total' => 4],
         ];
-        $data['recommendedItems'] = [
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend1.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend2.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend3.jpg'), 'active' => true],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend1.jpg'), 'active' => false],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend2.jpg'), 'active' => false],
-            ['title' => 'Easy Polo Black Edition', 'price' => 56, 'image' => asset('client/images/home/recommend3.jpg'), 'active' => false],
-        ];
+
+        $data['recommendedItems'] = Product::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(more_details, '$.\"product-recommend\"'))")
+            ->where('publish', 1)
+            ->orderBy('created_at', 'DESC')
+            ->take(6)
+            ->get();
 
         return view('pages.details', $data);
     }
 
     public function cart()
     {
-        $data['products'] = [
-            ['image' => asset('client/images/cart/one.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-            ['image' => asset('client/images/cart/two.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-            ['image' => asset('client/images/cart/three.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-        ];
+        $user = Auth::user()->load('carts.product');
+        $data['products'] = $user->carts;
+
         return view('pages.cart', $data);
     }
 
     public function checkout()
     {
-        $data['products'] = [
-            ['image' => asset('client/images/cart/one.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-            ['image' => asset('client/images/cart/two.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-            ['image' => asset('client/images/cart/three.png'), 'price' => 59, 'title' => 'Color block Scuba',],
-        ];
+        $user = Auth::user()->load('carts.product');
+        $data['products'] = $user->carts;
+
         return view('pages.checkout', $data);
     }
 

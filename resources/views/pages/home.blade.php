@@ -25,13 +25,13 @@
                                     data-slider-value="[250,450]"
                                     id="sl2"
                                 >
-                                <br />
+                                <br/>
                                 <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
                             </div>
                         </div>
 
                         <div class="shipping text-center">
-                            <img src="{{asset('client/images/home/shipping.jpg')}}" alt="" />
+                            <img src="{{asset('client/images/home/shipping.jpg')}}" alt=""/>
                         </div>
                     </div>
                 </div>
@@ -44,9 +44,9 @@
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{$product['image']}}" alt="" />
-                                            <h2>${{$product['price']}}</h2>
-                                            <p>{{$product['title']}}</p>
+                                            <img src="{{Storage::disk('public')->url($product->image)}}" alt=""/>
+                                            <h2>${{$product->price}}</h2>
+                                            <p>{{$product->title}}</p>
                                             <a href="#" class="btn btn-default add-to-cart">
                                                 <i class="fa fa-shopping-cart"></i>Add to cart
                                             </a>
@@ -54,16 +54,26 @@
 
                                         <div class="product-overlay">
                                             <div class="overlay-content">
-                                                <h2>${{$product['price']}}</h2>
-                                                <p>{{$product['title']}}</p>
+                                                <h2>${{$product->price}}</h2>
+                                                <p>{{$product->title}}</p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i>Add to cart
                                                 </a>
                                             </div>
                                         </div>
 
-                                        @if($product['badge'])
-                                            <img src="{{$product['badge']}}" class="new" alt="" />
+                                        @if(isset($product->more_details))
+                                            @foreach($product->more_details as $key => $value)
+                                                @if($key == 'product-sale' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/sale.png') }}" class="new"
+                                                         alt="Sale"/>
+                                                @endif
+
+                                                @if($key == 'product-new' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/new.png') }}" class="new"
+                                                         alt="New"/>
+                                                @endif
+                                            @endforeach
                                         @endif
                                     </div>
 
@@ -81,11 +91,9 @@
                     <div class="category-tab"><!--category-tab-->
                         <div class="col-sm-12">
                             <ul class="nav nav-tabs">
-                                @foreach($categoriesProducts as $itemCategory)
-                                    <li class="{{$itemCategory['active'] ? 'active' : ''}}">
-                                        <a href="#{{$itemCategory['slug']}}" data-toggle="tab">
-                                            {{$itemCategory['title']}}
-                                        </a>
+                                @foreach($categoriesProducts as $index => $itemCategory)
+                                    <li class="{{$index == 0 ? 'active' : ''}}">
+                                        <a href="#{{$itemCategory->slug . $index}}" data-toggle="tab">{{$itemCategory->title}}</a>
                                     </li>
                                 @endforeach
                             </ul>
@@ -93,15 +101,15 @@
 
                         <div class="tab-content">
                             @foreach($categoriesProducts as $index => $itemCategory)
-                                <div class="tab-pane fade {{$index === 0 ? 'active in' : ''}}" id="{{$itemCategory['slug']}}">
-                                    @foreach($itemCategory['products'] as $itemProduct)
+                                <div class="tab-pane fade {{ $index === 0 ? 'active in' : '' }}" id="{{ $itemCategory->slug . $index}}">
+                                    @foreach($itemCategory->products as $itemProduct)
                                         <div class="col-sm-3">
                                             <div class="product-image-wrapper">
                                                 <div class="single-products">
                                                     <div class="productinfo text-center">
-                                                        <img src="{{$itemProduct['image']}}" alt="" />
-                                                        <h2>${{$itemProduct['price']}}</h2>
-                                                        <p>{{$itemProduct['title']}}</p>
+                                                        <img src="{{ Storage::disk('public')->url($itemProduct->image) }}" alt=""/>
+                                                        <h2>${{ $itemProduct->price }}</h2>
+                                                        <p>{{ $itemProduct->title }}</p>
                                                         <a href="#" class="btn btn-default add-to-cart">
                                                             <i class="fa fa-shopping-cart"></i>Add to cart
                                                         </a>

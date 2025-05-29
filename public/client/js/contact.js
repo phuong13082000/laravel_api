@@ -1,18 +1,15 @@
 jQuery(function ($) {
-    'use strict',
-
+    'use strict'
     var form = $('.contact-form');
     form.submit(function () {
-        'use strict',
-            $this = $(this);
+        'use strict'
         $.post("sendemail.php", $(".contact-form").serialize(), function (result) {
             if (result.type == 'success') {
-                $this.prev().text(result.message).fadeIn().delay(3000).fadeOut();
+                $(this).prev().text(result.message).fadeIn().delay(3000).fadeOut();
             }
         });
         return false;
     });
-
 });
 
 // Google Map Customization

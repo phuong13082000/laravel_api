@@ -49,9 +49,9 @@
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{$product['image']}}" alt=""/>
-                                            <h2>${{$product['price']}}</h2>
-                                            <p>{{$product['title']}}</p>
+                                            <img src="{{ Storage::disk('public')->url($product->image)}}" alt=""/>
+                                            <h2>${{$product->price}}</h2>
+                                            <p>{{$product->title}}</p>
                                             <a href="#" class="btn btn-default add-to-cart">
                                                 <i class="fa fa-shopping-cart"></i>Add to cart
                                             </a>
@@ -59,13 +59,25 @@
 
                                         <div class="product-overlay">
                                             <div class="overlay-content">
-                                                <h2>${{$product['price']}}</h2>
-                                                <p>{{$product['title']}}</p>
+                                                <h2>${{$product->price}}</h2>
+                                                <p>{{$product->title}}</p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i>Add to cart
                                                 </a>
                                             </div>
                                         </div>
+
+                                        @if(isset($product->more_details))
+                                            @foreach($product->more_details as $key => $value)
+                                                @if($key == 'product-sale' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/sale.png') }}" class="new" alt="Sale"/>
+                                                @endif
+
+                                                @if($key == 'product-new' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/new.png') }}" class="new" alt="New"/>
+                                                @endif
+                                            @endforeach
+                                        @endif
                                     </div>
 
                                     <div class="choose">

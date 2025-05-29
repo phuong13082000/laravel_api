@@ -21,8 +21,10 @@ class ProductController extends AdminController
 
         $grid->column('image', 'Image')->image('', 150, 150);
         $grid->column('title', __('Title'));
-        $grid->column('slug', __('Slug'));
         $grid->column('category.title', __('Category'))->badge('gray');
+        $grid->column('price', __('Price'));
+        $grid->column('discount', __('Discount'));
+        $grid->column('stock', __('Stock'));
 
         $states = [
             'on' => ['value' => 1, 'text' => 'on', 'color' => 'primary'],
@@ -44,7 +46,7 @@ class ProductController extends AdminController
         $show->field('category_id', 'category id');
         $show->field('unit', 'unit');
         $show->field('price', 'price');
-        $show->field('stock', 'price');
+        $show->field('stock', 'stock');
         $show->field('discount', 'discount');
         $show->field('description', 'description');
         $show->field('publish', 'publish');
@@ -68,7 +70,8 @@ class ProductController extends AdminController
             ->options(Category::all()->pluck('title', 'id'));
         $form->text('unit', __('Unit'));
         $form->number('stock', __('Stock'))->default(0)->min(0);
-        $form->number('discount', __('Discount'))->default(null)->min(0)->max(100);
+        $form->number('price', __('Price'))->default(0)->min(0);
+        $form->number('discount', __('Discount'))->default(0)->min(0)->max(100);
         $form->textarea('description', __('Description'));
         $form->keyValue('more_details', __('More details'));
         $form->switch('publish', __('Publish'))->default(true);
