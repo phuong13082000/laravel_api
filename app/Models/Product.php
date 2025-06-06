@@ -13,6 +13,7 @@ class Product extends Model
         'slug',
         'image',
         'category_id',
+        'brand_id',
         'unit',
         'stock',
         'price',
@@ -25,6 +26,11 @@ class Product extends Model
         'more_details' => 'json',
     ];
 
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
@@ -32,7 +38,6 @@ class Product extends Model
 
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'order_products')
-            ->withPivot('quantity');
+        return $this->belongsToMany(Order::class, 'order_products')->withPivot('quantity');
     }
 }
