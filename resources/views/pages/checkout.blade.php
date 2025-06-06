@@ -128,19 +128,19 @@
                     </thead>
                     <tbody>
                     @if(isset($products))
-                        @foreach($products as $product)
+                        @foreach($products as $item)
                             <tr>
                                 <td class="cart_product">
-                                    <a href=""><img src="{{$product['image']}}" alt=""></a>
+                                    <a href=""><img src="{{ Storage::disk('public')->url($item->product->image)}}" alt=""></a>
                                 </td>
 
                                 <td class="cart_description">
-                                    <h4><a href="">{{$product['title']}}</a></h4>
-                                    <p>Web ID: 1089772</p>
+                                    <h4><a href="">{{$item->product->title}}</a></h4>
+                                    <p>Web ID: {{$item->id}}</p>
                                 </td>
 
                                 <td class="cart_price">
-                                    <p>${{$product['price']}}</p>
+                                    <p>${{$item->product->price}}</p>
                                 </td>
 
                                 <td class="cart_quantity">
@@ -150,7 +150,7 @@
                                             class="cart_quantity_input"
                                             type="text"
                                             name="quantity"
-                                            value="1"
+                                            value="{{$item->quantity}}"
                                             autocomplete="off"
                                             size="2"
                                         >

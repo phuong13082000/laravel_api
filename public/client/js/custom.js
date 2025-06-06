@@ -18,4 +18,24 @@ $(document).ready(function () {
             }
         });
     });
+
+    //price-range
+    $('#sl2').slider().on('slideStop', function (ev) {
+        const min = ev.value[0];
+        const max = ev.value[1];
+
+        const url = new URL(window.location.origin + '/shop');
+
+        const params = new URLSearchParams(window.location.search);
+        params.forEach((value, key) => {
+            if (key !== 'min' && key !== 'max' && key !== 'page') {
+                url.searchParams.set(key, value);
+            }
+        });
+
+        url.searchParams.set('min', min);
+        url.searchParams.set('max', max);
+
+        window.location.href = url.toString();
+    });
 });

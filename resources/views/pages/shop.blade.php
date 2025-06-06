@@ -13,32 +13,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-3">
-                    <div class="left-sidebar">
-                        @include('includes.left-sidebar-category')
-                        @include('includes.left-sidebar-brand')
-
-                        <div class="price-range"><!--price-range-->
-                            <h2>Price Range</h2>
-                            <div class="well">
-                                <input
-                                    type="text"
-                                    class="span2"
-                                    value=""
-                                    data-slider-min="0"
-                                    data-slider-max="600"
-                                    data-slider-step="5"
-                                    data-slider-value="[250,450]"
-                                    id="sl2"
-                                >
-                                <br/>
-                                <b>$ 0</b> <b class="pull-right">$ 600</b>
-                            </div>
-                        </div><!--/price-range-->
-
-                        <div class="shipping text-center"><!--shipping-->
-                            <img src="{{asset('client/images/home/shipping.jpg')}}" alt=""/>
-                        </div><!--/shipping-->
-                    </div>
+                    @include('includes.left-sidebar')
                 </div>
 
                 <div class="col-sm-9 padding-right">
@@ -49,9 +24,9 @@
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{$product['image']}}" alt=""/>
-                                            <h2>${{$product['price']}}</h2>
-                                            <p>{{$product['title']}}</p>
+                                            <img src="{{ Storage::disk('public')->url($product->image)}}" alt=""/>
+                                            <h2>${{$product->price}}</h2>
+                                            <p>{{$product->title}}</p>
                                             <a href="#" class="btn btn-default add-to-cart">
                                                 <i class="fa fa-shopping-cart"></i>Add to cart
                                             </a>
@@ -59,13 +34,27 @@
 
                                         <div class="product-overlay">
                                             <div class="overlay-content">
-                                                <h2>${{$product['price']}}</h2>
-                                                <p>{{$product['title']}}</p>
+                                                <h2>${{$product->price}}</h2>
+                                                <p>{{$product->title}}</p>
                                                 <a href="#" class="btn btn-default add-to-cart">
                                                     <i class="fa fa-shopping-cart"></i>Add to cart
                                                 </a>
                                             </div>
                                         </div>
+
+                                        @if(isset($product->more_details))
+                                            @foreach($product->more_details as $key => $value)
+                                                @if($key == 'product-sale' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/sale.png') }}" class="new"
+                                                         alt="Sale"/>
+                                                @endif
+
+                                                @if($key == 'product-new' && $value == 1)
+                                                    <img src="{{ asset('client/images/home/new.png') }}" class="new"
+                                                         alt="New"/>
+                                                @endif
+                                            @endforeach
+                                        @endif
                                     </div>
 
                                     <div class="choose">
@@ -79,10 +68,25 @@
                         @endforeach
 
                         <ul class="pagination">
-                            <li class="active"><a href="">1</a></li>
-                            <li><a href="">2</a></li>
-                            <li><a href="">3</a></li>
-                            <li><a href="">&raquo;</a></li>
+                            @if ($products->onFirstPage())
+                                <li class="disabled"><span>&laquo;</span></li>
+                            @else
+                                <li><a href="{{ $products->previousPageUrl() }}">&laquo;</a></li>
+                            @endif
+
+                            @for($i = 1; $i <= $products->lastPage(); $i++)
+                                @if ($i == $products->currentPage())
+                                    <li class="active"><span>{{ $i }}</span></li>
+                                @else
+                                    <li><a href="{{ $products->url($i) }}">{{ $i }}</a></li>
+                                @endif
+                            @endfor
+
+                            @if ($products->hasMorePages())
+                                <li><a href="{{ $products->nextPageUrl() }}">&raquo;</a></li>
+                            @else
+                                <li class="disabled"><span>&raquo;</span></li>
+                            @endif
                         </ul>
                     </div><!--features_items-->
                 </div>

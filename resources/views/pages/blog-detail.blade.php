@@ -7,32 +7,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-3">
-                    <div class="left-sidebar">
-                        @include('includes.left-sidebar-category')
-                        @include('includes.left-sidebar-brand')
-
-                        <div class="price-range">
-                            <h2>Price Range</h2>
-                            <div class="well">
-                                <input
-                                    type="text"
-                                    class="span2"
-                                    value=""
-                                    data-slider-min="0"
-                                    data-slider-max="600"
-                                    data-slider-step="5"
-                                    data-slider-value="[250,450]"
-                                    id="sl2"
-                                >
-                                <br/>
-                                <b>$ 0</b> <b class="pull-right">$ 600</b>
-                            </div>
-                        </div>
-
-                        <div class="shipping text-center"><!--shipping-->
-                            <img src="{{asset('client/images/home/shipping.jpg')}}" alt=""/>
-                        </div><!--/shipping-->
-                    </div>
+                    @include('includes.left-sidebar')
                 </div>
 
                 <div class="col-sm-9">
