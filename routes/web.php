@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [NavigateController::class, 'home'])->name('home');
 Route::get('/login', [NavigateController::class, 'login'])->name('login');
 Route::get('/shop', [NavigateController::class, 'shop'])->name('shop');
-Route::get('/detail', [NavigateController::class, 'detail'])->name('detail');
+Route::get('/detail/{slug}', [NavigateController::class, 'detail'])->name('detail');
 Route::get('/page-not-found', fn() => view('pages.404'))->name('404');
 Route::get('/contact-us', [NavigateController::class, 'contact'])->name('contact');
 Route::get('/cart', [NavigateController::class, 'cart'])->name('cart');

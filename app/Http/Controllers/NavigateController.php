@@ -124,8 +124,7 @@ class NavigateController extends Controller
         return view('pages.shop', $data);
     }
 
-
-    public function detail()
+    public function detail($slug)
     {
         $categories = Category::orderBy('created_at', 'ASC')->get();
 
@@ -134,13 +133,17 @@ class NavigateController extends Controller
             ->orderBy('created_at', 'ASC')
             ->get();
 
+        $data['product'] = Product::with('brand', 'category')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
         $data['recommendedItems'] = Product::whereRaw("JSON_UNQUOTE(JSON_EXTRACT(more_details, '$.\"product-recommend\"'))")
             ->where('publish', 1)
             ->orderBy('created_at', 'DESC')
             ->take(6)
             ->get();
 
-        return view('pages.details', $data);
+        return view('pages.details', $data, ['slug' => $slug]);
     }
 
     public function cart()
