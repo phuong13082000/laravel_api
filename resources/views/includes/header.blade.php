@@ -104,7 +104,7 @@
                             <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
                                 <ul role="menu" class="sub-menu">
                                     <li><a href="{{route('shop')}}">Products</a></li>
-                                    <li><a href="{{route('detail')}}">Product Details</a></li>
+                                    <li><a href="{{route('detail', ['slug' => 'easy-polo-black-edition'])}}">Product Details</a></li>
                                     <li><a href="{{route('checkout')}}">Checkout</a></li>
                                     <li><a href="{{route('cart')}}">Cart</a></li>
                                     <li><a href="{{route('login')}}">Login</a></li>

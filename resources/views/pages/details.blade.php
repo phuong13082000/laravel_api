@@ -1,5 +1,17 @@
 @extends('app')
 
+@php
+    $new = false;
+    $sale = false;
+
+    if(isset($product->more_details)) {
+        foreach ($product->more_details as $key => $value) {
+            if ($key == 'product-sale' && $value == 1) $new = true;
+            if ($key == 'product-new' && $value == 1) $sale = true;
+        }
+    }
+@endphp
+
 @section('frontend')
     @include('includes.header')
 
@@ -11,10 +23,10 @@
                 </div>
 
                 <div class="col-sm-9 padding-right">
-                    <div class="product-details"><!--product-details-->
+                    <div class="product-details">
                         <div class="col-sm-5">
                             <div class="view-product">
-                                <img src="{{asset('client/images/product-details/1.jpg')}}" alt="" />
+                                <img src="{{Storage::disk('public')->url($product->image)}}" alt="" />
                                 <h3>ZOOM</h3>
                             </div>
 
@@ -37,94 +49,49 @@
                                     </div>
                                 </div>
 
-                                <!-- Controls -->
                                 <a class="left item-control" href="#similar-product" data-slide="prev"><i class="fa fa-angle-left"></i></a>
                                 <a class="right item-control" href="#similar-product" data-slide="next"><i class="fa fa-angle-right"></i></a>
                             </div>
                         </div>
 
                         <div class="col-sm-7">
-                            <div class="product-information"><!--/product-information-->
-                                <img src="{{asset('client/images/product-details/new.jpg')}}" class="newarrival" alt="" />
-                                <h2>Anne Klein Sleeveless Color block Scuba</h2>
-                                <p>Web ID: 1089772</p>
+                            <div class="product-information">
+                                @if($new)
+                                    <img src="{{asset('client/images/product-details/new.jpg')}}" class="newarrival" alt="" />
+                                @endif
+                                <h2>{{$product->title ?? ''}}</h2>
+                                <p>Web ID: {{$product->id ?? 0}}</p>
                                 <img src="{{asset('client/images/product-details/rating.png')}}" alt="" />
                                 <span>
-									<span>US $59</span>
+									<span>US ${{$product->price ?? 0}}</span>
 									<label>Quantity:</label>
-									<input type="text" value="3" />
+									<input type="text" value="1" min="0" max="{{$product->stock ?? 20}}"/>
 									<button type="button" class="btn btn-fefault cart">
-										<i class="fa fa-shopping-cart"></i>
-										Add to cart
+										<i class="fa fa-shopping-cart"></i>Add to cart
 									</button>
 								</span>
                                 <p><b>Availability:</b> In Stock</p>
-                                <p><b>Condition:</b> New</p>
-                                <p><b>Brand:</b> E-SHOPPER</p>
+                                <p><b>Condition:</b> @if($new)New @endif @if($sale)Sale @endif</p>
+                                <p><b>Brand:</b> {{$product->brand->title ?? ''}}</p>
                                 <a href=""><img src="{{asset('client/images/product-details/share.png')}}" class="share img-responsive" alt=""/></a>
-                            </div><!--/product-information-->
+                            </div>
                         </div>
-                    </div><!--/product-details-->
+                    </div>
 
                     <div class="category-tab shop-details-tab"><!--category-tab-->
                         <div class="col-sm-12">
                             <ul class="nav nav-tabs">
-                                <li><a href="#details" data-toggle="tab">Details</a></li>
+                                <li class="active"><a href="#details" data-toggle="tab">Details</a></li>
                                 <li><a href="#companyprofile" data-toggle="tab">Company Profile</a></li>
                                 <li><a href="#tag" data-toggle="tab">Tag</a></li>
-                                <li class="active"><a href="#reviews" data-toggle="tab">Reviews (5)</a></li>
+                                <li><a href="#reviews" data-toggle="tab">Reviews (5)</a></li>
                             </ul>
                         </div>
 
                         <div class="tab-content">
-                            <div class="tab-pane fade" id="details" >
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery1.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery2.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery3.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery4.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="tab-pane fade active in" id="details" >
+                                <div class="col-sm-12">
+                                    <p>{{$product->description ?? ''}}</p>
                                 </div>
                             </div>
 
@@ -180,57 +147,16 @@
                             </div>
 
                             <div class="tab-pane fade" id="tag" >
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery1.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery2.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery3.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{asset('client/images/home/gallery4.jpg')}}" alt="" />
-                                                <h2>$56</h2>
-                                                <p>Easy Polo Black Edition</p>
-                                                <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="col-sm-12">
+                                    @if(isset($product->tags))
+                                        @foreach($product->tags as $tag)
+                                            <a href="#">#{{$tag->title}}</a>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
 
-                            <div class="tab-pane fade active in" id="reviews" >
+                            <div class="tab-pane fade" id="reviews" >
                                 <div class="col-sm-12">
                                     <ul>
                                         <li><a href=""><i class="fa fa-user"></i>EUGEN</a></li>

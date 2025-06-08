@@ -100,7 +100,7 @@ class CartController extends Controller
         $product = $cartItem->product;
 
         if ($product->stock < $quantity) {
-            return $this->responseError('Product not enough');
+            return $this->responseError('Product out of stock');
         }
 
         $cartItem->update([
