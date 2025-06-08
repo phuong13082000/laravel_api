@@ -1,5 +1,11 @@
 @extends('app')
 
+@php
+    $subTotalCart = 0;
+    $ecoTax = 2;
+    $total = 0;
+@endphp
+
 @section('frontend')
     @include('includes.header')
 
@@ -27,6 +33,10 @@
                     <tbody>
                     @if(isset($products))
                         @foreach($products as $item)
+                            @php
+                                $subTotalItem = $item->product->price * $item->quantity;
+                                $subTotalCart += $subTotalItem;
+                            @endphp
                             <tr>
                                 <td class="cart_product">
                                     <a href=""><img src="{{ Storage::disk('public')->url($item->product->image)}}" alt=""></a>
@@ -43,7 +53,7 @@
 
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
+                                        <a class="cart_quantity_down" href=""> - </a>
                                         <input
                                             class="cart_quantity_input"
                                             type="text"
@@ -52,16 +62,22 @@
                                             autocomplete="off"
                                             size="2"
                                         >
-                                        <a class="cart_quantity_down" href=""> - </a>
+                                        <a class="cart_quantity_up" href=""> + </a>
                                     </div>
                                 </td>
 
                                 <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
+                                    <p class="cart_total_price">${{$subTotalItem}}</p>
                                 </td>
 
                                 <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
+                                    <form method="POST" action="{{route('cart.remove')}}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{$item->id}}">
+                                        <button type="submit" class="cart_quantity_delete">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -89,15 +105,18 @@
                                 <input type="checkbox">
                                 <label>Use Coupon Code</label>
                             </li>
+
                             <li>
                                 <input type="checkbox">
                                 <label>Use Gift Voucher</label>
                             </li>
+
                             <li>
                                 <input type="checkbox">
                                 <label>Estimate Shipping & Taxes</label>
                             </li>
                         </ul>
+
                         <ul class="user_info">
                             <li class="single_field">
                                 <label>Country:</label>
@@ -111,8 +130,8 @@
                                     <option>Canada</option>
                                     <option>Dubai</option>
                                 </select>
-
                             </li>
+
                             <li class="single_field">
                                 <label>Region / State:</label>
                                 <select>
@@ -125,13 +144,14 @@
                                     <option>Canada</option>
                                     <option>Dubai</option>
                                 </select>
-
                             </li>
+
                             <li class="single_field zip-field">
                                 <label>Zip Code:</label>
                                 <input type="text">
                             </li>
                         </ul>
+
                         <a class="btn btn-default update" href="">Get Quotes</a>
                         <a class="btn btn-default check_out" href="">Continue</a>
                     </div>
@@ -139,10 +159,10 @@
                 <div class="col-sm-6">
                     <div class="total_area">
                         <ul>
-                            <li>Cart Sub Total <span>$59</span></li>
-                            <li>Eco Tax <span>$2</span></li>
+                            <li>Cart Sub Total <span>${{$subTotalCart}}</span></li>
+                            <li>Eco Tax <span>${{$ecoTax}}</span></li>
                             <li>Shipping Cost <span>Free</span></li>
-                            <li>Total <span>$61</span></li>
+                            <li>Total <span>${{$subTotalCart + $ecoTax}}</span></li>
                         </ul>
                         <a class="btn btn-default update" href="">Update</a>
                         <a class="btn btn-default check_out" href="">Check Out</a>

@@ -15,9 +15,13 @@
                     <div class="overlay-content">
                         <h2>${{$product->price}}</h2>
                         <p>{{$product->title}}</p>
-                        <a href="#" class="btn btn-default add-to-cart">
-                            <i class="fa fa-shopping-cart"></i>Add to cart
-                        </a>
+                        <form method="POST" action="{{route('cart.add')}}">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{$product->id}}">
+                            <button type="submit" class="btn btn-default add-to-cart">
+                                <i class="fa fa-shopping-cart"></i>Add to cart
+                            </button>
+                        </form>
                     </div>
                 </div>
             </a>

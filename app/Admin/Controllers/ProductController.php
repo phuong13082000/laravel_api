@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Tag;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -50,6 +51,7 @@ class ProductController extends AdminController
         $show->field('stock', 'stock');
         $show->field('discount', 'discount');
         $show->field('description', 'description');
+        $show->field('tags', 'tag')->json();
         $show->field('publish', 'publish');
         $show->field('more_details', 'more details')->json();
         $show->field('created_at', 'created at');
@@ -72,6 +74,7 @@ class ProductController extends AdminController
         $form->number('price', __('Price'))->default(0)->min(0);
         $form->number('discount', __('Discount'))->default(0)->min(0)->max(100);
         $form->textarea('description', __('Description'));
+        $form->multipleSelect('tags','Tag')->options(Tag::all()->pluck('title','id'));
         $form->keyValue('more_details', __('More details'));
         $form->switch('publish', __('Publish'))->default(true);
         $form->saving(function (Form $form) {

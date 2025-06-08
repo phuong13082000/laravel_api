@@ -40,4 +40,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Order::class, 'order_products')->withPivot('quantity');
     }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'tag_products');
+    }
 }

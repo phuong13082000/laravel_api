@@ -27,6 +27,8 @@
 <body>
 @if (session('error'))
     <div style="color:red;">{{ session('error') }}</div>
+@elseif(session('success'))
+    <div style="color:blue;">{{ session('success') }}</div>
 @endif
 
 @yield('frontend')

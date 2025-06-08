@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\NavigateController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,5 +21,8 @@ Route::get('/checkout', [NavigateController::class, 'checkout'])->name('checkout
 Route::post('/login', [AuthController::class, 'handleLogin'])->name('login.submit');
 
 Route::prefix('user')->middleware(['auth'])->group(function () {
+    Route::post('/add-cart', [CartController::class, 'addCart'])->name('cart.add');
+    Route::post('/update-cart', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::post('/remove-cart', [CartController::class, 'removeCart'])->name('cart.remove');
     Route::post('/logout', [AuthController::class, 'handleLogout'])->name('logout');
 });
