@@ -1,5 +1,11 @@
 @extends('app')
 
+@php
+    $subTotalCart = 0;
+    $ecoTax = 2;
+    $user = \Auth::user();
+@endphp
+
 @section('frontend')
     @include('includes.header')
 
@@ -38,8 +44,8 @@
                         <div class="shopper-info">
                             <p>Shopper Information</p>
                             <form>
-                                <input type="text" placeholder="Display Name">
-                                <input type="text" placeholder="User Name">
+                                <input type="text" value="{{$user->name}}" placeholder="Display Name">
+                                <input type="text" value="{{$user->email}}" placeholder="Email">
                                 <input type="password" placeholder="Password">
                                 <input type="password" placeholder="Confirm password">
                             </form>
@@ -129,6 +135,13 @@
                     <tbody>
                     @if(isset($products))
                         @foreach($products as $item)
+                            @php
+                                $originalPrice = $item->product->price;
+                                $discountPercent = $item->product->discount ?? 0;
+                                $finalPrice = $originalPrice - ($originalPrice * $discountPercent / 100);
+                                $subTotalItem = $finalPrice * $item->quantity;
+                                $subTotalCart += $subTotalItem;
+                            @endphp
                             <tr>
                                 <td class="cart_product">
                                     <a href=""><img src="{{ Storage::disk('public')->url($item->product->image)}}" alt=""></a>
@@ -140,7 +153,12 @@
                                 </td>
 
                                 <td class="cart_price">
-                                    <p>${{$item->product->price}}</p>
+                                    <p>
+                                        ${{$item->product->price}}
+                                        @php
+                                            if($discountPercent > 0) echo '(-'. $discountPercent .'%)';
+                                        @endphp
+                                    </p>
                                 </td>
 
                                 <td class="cart_quantity">
@@ -159,11 +177,17 @@
                                 </td>
 
                                 <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
+                                    <p class="cart_total_price">${{$subTotalItem}}</p>
                                 </td>
 
                                 <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
+                                    <form method="POST" action="{{route('cart.remove')}}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{$item->id}}">
+                                        <button type="submit" class="cart_quantity_delete">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -174,11 +198,11 @@
                             <table class="table table-condensed total-result">
                                 <tr>
                                     <td>Cart Sub Total</td>
-                                    <td>$59</td>
+                                    <td>${{$subTotalCart}}</td>
                                 </tr>
                                 <tr>
                                     <td>Exo Tax</td>
-                                    <td>$2</td>
+                                    <td>${{$ecoTax}}</td>
                                 </tr>
                                 <tr class="shipping-cost">
                                     <td>Shipping Cost</td>
@@ -186,7 +210,7 @@
                                 </tr>
                                 <tr>
                                     <td>Total</td>
-                                    <td><span>$61</span></td>
+                                    <td><span>${{$subTotalCart + $ecoTax}}</span></td>
                                 </tr>
                             </table>
                         </td>
