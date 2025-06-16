@@ -3,7 +3,6 @@
 @php
     $subTotalCart = 0;
     $ecoTax = 2;
-    $total = 0;
 @endphp
 
 @section('frontend')
@@ -34,7 +33,10 @@
                     @if(isset($products))
                         @foreach($products as $item)
                             @php
-                                $subTotalItem = $item->product->price * $item->quantity;
+                                $originalPrice = $item->product->price;
+                                $discountPercent = $item->product->discount ?? 0;
+                                $finalPrice = $originalPrice - ($originalPrice * $discountPercent / 100);
+                                $subTotalItem = $finalPrice * $item->quantity;
                                 $subTotalCart += $subTotalItem;
                             @endphp
                             <tr>
@@ -48,7 +50,12 @@
                                 </td>
 
                                 <td class="cart_price">
-                                    <p>${{$item->product->price}}</p>
+                                    <p>
+                                        ${{$item->product->price}}
+                                        @php
+                                            if($discountPercent > 0) echo '(-'. $discountPercent .'%)';
+                                        @endphp
+                                    </p>
                                 </td>
 
                                 <td class="cart_quantity">
