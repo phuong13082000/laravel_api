@@ -11,9 +11,7 @@ class Product extends Model
     protected $fillable = [
         'title',
         'slug',
-        'image',
         'category_id',
-        'brand_id',
         'unit',
         'stock',
         'price',
@@ -24,12 +22,8 @@ class Product extends Model
 
     protected $casts = [
         'more_details' => 'json',
+        'images' => 'json',
     ];
-
-    public function brand(): BelongsTo
-    {
-        return $this->belongsTo(Brand::class, 'brand_id');
-    }
 
     public function category(): BelongsTo
     {

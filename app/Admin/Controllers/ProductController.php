@@ -2,7 +2,6 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tag;
@@ -21,10 +20,16 @@ class ProductController extends AdminController
         $grid = new Grid(new Product());
         $grid->model()->latest();
 
-        $grid->column('image', 'Image')->image('', 150, 150);
+        $grid->column('images', 'Image')
+            ->display(function ($images) {
+                if (is_array($images) && count($images) > 0) {
+                    return $images[0];
+                }
+                return null;
+            })
+            ->image('', 150, 150);
         $grid->column('title', __('Title'));
         $grid->column('category.title', __('Category'))->badge('gray');
-        $grid->column('brand.title', __('Brand'))->badge('gray');
         $grid->column('price', __('Price'));
         $grid->column('discount', __('Discount'));
         $grid->column('stock', __('Stock'));
@@ -43,9 +48,8 @@ class ProductController extends AdminController
         $show->field('id', 'id');
         $show->field('title', 'title');
         $show->field('slug', 'slug');
-        $show->field('image', 'image');
+        $show->field('images', 'images')->image('', 150, 150);
         $show->field('category_id', 'category id');
-        $show->field('brand_id', 'brand id');
         $show->field('unit', 'unit');
         $show->field('price', 'price');
         $show->field('stock', 'stock');
@@ -68,7 +72,6 @@ class ProductController extends AdminController
         $form->text('slug', __('Slug'));
         $form->image('image', __('Image'))->move('product')->uniqueName();
         $form->select('category_id', 'Category')->options(Category::all()->pluck('title', 'id'));
-        $form->select('brand_id', 'Brand')->options(Brand::all()->pluck('title', 'id'));
         $form->text('unit', __('Unit'));
         $form->number('stock', __('Stock'))->default(0)->min(0);
         $form->number('price', __('Price'))->default(0)->min(0);

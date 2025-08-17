@@ -8,10 +8,10 @@ class Address extends Model
 {
     protected $fillable = [
         'user_id',
-        'address_line',
+        'addressLine',
         'city',
         'state',
-        'pincode',
+        'pinCode',
         'country',
         'mobile',
         'status',
