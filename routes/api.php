@@ -46,13 +46,3 @@ Route::prefix('user')->middleware(['auth:sanctum', 'role:admin,user'])->group(fu
 
     Route::post('/stripe/checkout', [StripeController::class, 'checkout']);
 });
-
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::post('/category', [CategoryController::class, 'store']);
-    Route::post('/category/{id}', [CategoryController::class, 'update']);
-    Route::delete('/category/{id}', [CategoryController::class, 'destroy']);
-
-    Route::post('/product', [ProductController::class, 'store']);
-    Route::post('/product/{id}', [ProductController::class, 'update']);
-    Route::delete('/product/{id}', [ProductController::class, 'destroy']);
-});

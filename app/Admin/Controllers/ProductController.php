@@ -21,7 +21,14 @@ class ProductController extends AdminController
         $grid = new Grid(new Product());
         $grid->model()->latest();
 
-        $grid->column('image', 'Image')->image('', 150, 150);
+        $grid->column('images', 'Image')
+            ->display(function ($images) {
+                if (is_array($images) && count($images) > 0) {
+                    return $images[0];
+                }
+                return null;
+            })
+            ->image('', 150, 150);
         $grid->column('title', __('Title'));
         $grid->column('category.title', __('Category'))->badge('gray');
         $grid->column('brand.title', __('Brand'))->badge('gray');
@@ -43,7 +50,7 @@ class ProductController extends AdminController
         $show->field('id', 'id');
         $show->field('title', 'title');
         $show->field('slug', 'slug');
-        $show->field('image', 'image');
+        $show->field('images', 'images')->image('', 150, 150);
         $show->field('category_id', 'category id');
         $show->field('brand_id', 'brand id');
         $show->field('unit', 'unit');
