@@ -27,7 +27,9 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $user = User::with('addresses')->where('email', $request['email'])->first();
+        $user = User::with('addresses', 'carts')
+            ->where('email', $request['email'])
+            ->first();
 
         if (!$user || !Hash::check($request['password'], $user->password)) {
             return $this->responseError('Invalid credentials');
@@ -43,13 +45,28 @@ class AuthController extends Controller
             $address->makeHidden('user_id', 'created_at', 'updated_at');
         }
 
+        foreach ($user->carts as $cart) {
+            $cart->load('product');
+            $cart->makeHidden('user_id', 'product_id', 'created_at', 'updated_at');
+
+            if($cart->product) {
+                $cart->product->load('category');
+                $cart->product->makeHidden('created_at', 'updated_at', 'category_id');
+
+                if($cart->product->category) {
+                    $cart->product->category->makeHidden('parent_id', 'created_at', 'updated_at');
+                }
+            }
+        }
+
         return $this->responseSuccess([
             'id' => $user->id,
             'token' => $token,
             'name' => $user->name,
             'email' => $user->email,
-            'addresses' => $user->addresses,
             'role' => $user->role,
+            'addresses' => $user->addresses,
+            'carts' => $user->carts,
         ]);
     }
 
@@ -63,10 +80,24 @@ class AuthController extends Controller
 
         $token = $this->generateToken($user);
 
-        $user->load('addresses');
+        $user->load('addresses', 'carts');
 
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at');
+        }
+
+        foreach ($user->carts as $cart) {
+            $cart->load('product');
+            $cart->makeHidden('user_id', 'product_id', 'created_at', 'updated_at');
+
+            if($cart->product) {
+                $cart->product->load('category');
+                $cart->product->makeHidden('created_at', 'updated_at', 'category_id');
+
+                if($cart->product->category) {
+                    $cart->product->category->makeHidden('parent_id', 'created_at', 'updated_at');
+                }
+            }
         }
 
         return $this->responseSuccess([
@@ -74,25 +105,41 @@ class AuthController extends Controller
             'token' => $token,
             'name' => $user->name,
             'email' => $user->email,
-            'addresses' => $user->addresses,
             'role' => 'user',
+            'addresses' => $user->addresses,
+            'carts' => $user->carts,
         ]);
     }
 
     public function user(Request $request)
     {
-        $user = $request->user()->load('addresses');
+        $user = $request->user()->load('addresses', 'carts');
 
         foreach ($user->addresses as $address) {
             $address->makeHidden('user_id', 'created_at', 'updated_at');
+        }
+
+        foreach ($user->carts as $cart) {
+            $cart->load('product');
+            $cart->makeHidden('user_id', 'product_id', 'created_at', 'updated_at');
+
+            if($cart->product) {
+                $cart->product->load('category');
+                $cart->product->makeHidden('created_at', 'updated_at', 'category_id');
+
+                if($cart->product->category) {
+                    $cart->product->category->makeHidden('parent_id', 'created_at', 'updated_at');
+                }
+            }
         }
 
         return $this->responseSuccess([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'addresses' => $user->addresses,
             'role' => $user->role,
+            'addresses' => $user->addresses,
+            'carts' => $user->carts,
         ]);
     }
 

@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     protected $fillable = [
-        'stripe_id',
+        'stripeId',
         'user_id',
         'amount',
         'currency',
         'status',
         'description',
-        'checkout_url',
+        'checkoutUrl',
     ];
 
     public function user()
