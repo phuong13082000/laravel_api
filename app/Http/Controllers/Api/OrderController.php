@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function orders(Request $request)
+    public function create(Request $request)
     {
         $user = $request->user();
 
@@ -53,7 +53,7 @@ class OrderController extends Controller
         return $this->responseSuccess($order);
     }
 
-    public function getOrderDetails(Request $request)
+    public function get(Request $request)
     {
         $user = $request->user();
 

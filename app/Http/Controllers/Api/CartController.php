@@ -4,18 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Services\FormatDataService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    protected FormatDataService $formatData;
-
-    public function __construct(FormatDataService $formatData)
-    {
-        $this->formatData = $formatData;
-    }
-
     private function priceWithDiscount($price, $discount = 1): float
     {
         $price = floatval($price);
@@ -26,7 +18,7 @@ class CartController extends Controller
         return $price - $discountAmount;
     }
 
-    public function getCartItem(Request $request)
+    public function get(Request $request)
     {
         $user = $request->user();
 
@@ -37,12 +29,16 @@ class CartController extends Controller
         $totalPrice = 0;
 
         foreach ($cartItems as $cartItem) {
+            $product = $cartItem->product;
             $cartItem->makeHidden('created_at', 'updated_at', 'product_id', 'user_id');
 
-            if (!empty($cartItem->product)) {
-                $this->formatData->cleanDataProduct($cartItem->product);
+            if (!empty($product)) {
+                $product->makeHidden('created_at', 'updated_at', 'category_id', 'publish');
 
-                $product = $cartItem->product;
+                if (!empty($product->category)) {
+                    $product->category->makeHidden('created_at', 'updated_at', 'parent_id', 'depth');
+                }
+
                 $price = $this->priceWithDiscount($product->price, $product->discount);
                 $totalPrice += $price * $cartItem->quantity;
             }
@@ -55,16 +51,16 @@ class CartController extends Controller
         ]);
     }
 
-    public function addCartItem(Request $request)
+    public function create(Request $request)
     {
         $user = $request->user();
 
         $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'productId' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $productId = $request['product_id'];
+        $productId = $request['productId'];
         $quantity = $request['quantity'];
 
         $product = Product::find($productId);
@@ -81,7 +77,7 @@ class CartController extends Controller
         return $this->responseSuccess([]);
     }
 
-    public function updateCartItem(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $user = $request->user();
 
@@ -110,7 +106,7 @@ class CartController extends Controller
         return $this->responseSuccess([]);
     }
 
-    public function removeCartItem(Request $request, $id)
+    public function delete(Request $request, $id)
     {
         $user = $request->user();
 

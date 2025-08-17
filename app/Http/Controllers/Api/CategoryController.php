@@ -4,30 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Services\FormatDataService;
-use App\Services\ImageUploadService;
 
 class CategoryController extends Controller
 {
-    protected ImageUploadService $imageUploadService;
-    protected FormatDataService $formatData;
-
-    public function __construct(
-        ImageUploadService $imageUploadService,
-        FormatDataService  $formatData,
-    )
-    {
-        $this->imageUploadService = $imageUploadService;
-        $this->formatData = $formatData;
-    }
-
     function buildTree($categories, $parentId = null): array
     {
         $tree = [];
 
         foreach ($categories as $category) {
             if ($category->parent_id == $parentId) {
-                $this->formatData->cleanDataCategory($category);
+                $category->makeHidden('created_at', 'updated_at', 'parent_id');
 
                 $children = $this->buildTree($categories, $category->id);
 
@@ -61,7 +47,7 @@ class CategoryController extends Controller
         }
 
         foreach ($category->children as $child) {
-            $this->formatData->cleanDataCategory($child);
+            $child->makeHidden('created_at', 'updated_at', 'parent_id');
         }
 
         return $this->responseSuccess([
@@ -71,7 +57,7 @@ class CategoryController extends Controller
             'icon' => $category->icon,
             'color' => $category->color,
             'description' => $category->description,
-            'image' => $this->imageUploadService->getImageUrl($category->image),
+            'image' => $category->image,
             'children' => $category->children,
         ]);
     }

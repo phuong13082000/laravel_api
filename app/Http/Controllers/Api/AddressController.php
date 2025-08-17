@@ -7,24 +7,24 @@ use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
-    public function createAddress(Request $request)
+    public function create(Request $request)
     {
         $user = $request->user();
 
         $request->validate([
-            'address_line' => 'string',
+            'addressLine' => 'string',
             'city' => 'string',
             'state' => 'string',
-            'pincode' => 'string',
+            'pinCode' => 'string',
             'country' => 'string',
             'mobile' => 'string',
         ]);
 
         $user->addresses()->create([
-            'address_line' => $request['address_line'],
+            'addressLine' => $request['addressLine'],
             'city' => $request['city'],
             'state' => $request['state'],
-            'pincode' => $request['pincode'],
+            'pinCode' => $request['pinCode'],
             'country' => $request['country'],
             'mobile' => $request['mobile'],
         ]);
@@ -32,15 +32,15 @@ class AddressController extends Controller
         return $this->responseSuccess([]);
     }
 
-    public function updateAddress(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $user = $request->user();
 
         $request->validate([
-            'address_line' => 'string',
+            'addressLine' => 'string',
             'city' => 'string',
             'state' => 'string',
-            'pincode' => 'string',
+            'pinCode' => 'string',
             'country' => 'string',
             'mobile' => 'string',
         ]);
@@ -52,10 +52,10 @@ class AddressController extends Controller
         }
 
         $address->update([
-            'address_line' => $request['address_line'],
+            'addressLine' => $request['addressLine'],
             'city' => $request['city'],
             'state' => $request['state'],
-            'pincode' => $request['pincode'],
+            'pinCode' => $request['pinCode'],
             'country' => $request['country'],
             'mobile' => $request['mobile'],
         ]);
@@ -63,7 +63,7 @@ class AddressController extends Controller
         return $this->responseSuccess([]);
     }
 
-    public function deleteAddress(Request $request, $id)
+    public function delete(Request $request, $id)
     {
         $user = $request->user();
 

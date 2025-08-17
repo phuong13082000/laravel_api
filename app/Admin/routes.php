@@ -1,6 +1,5 @@
 <?php
 
-use App\Admin\Controllers\BrandController;
 use App\Admin\Controllers\CategoryController;
 use App\Admin\Controllers\HomeController;
 use App\Admin\Controllers\OrderController;
@@ -18,7 +17,6 @@ Route::group([
     'as' => config('admin.route.prefix') . '.',
 ], function (Router $router) {
     $router->get('/', [HomeController::class, 'index'])->name('home');
-    $router->resource('/data/brand', BrandController::class);
     $router->resource('/data/tag', TagController::class);
     $router->resource('/data/category', CategoryController::class);
     $router->resource('/data/product', ProductController::class);
